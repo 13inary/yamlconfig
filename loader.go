@@ -12,6 +12,8 @@ import (
 
 const (
 	defaultConfigFile = "config.yaml"
+
+	defaultTag = "default"
 )
 
 // yamlLoader 配置加载器
@@ -23,7 +25,7 @@ type yamlLoader struct {
 // LoadYamlConfig 加载YAML配置文件
 // configFile: 配置文件路径，若不设置tag，那么配置文件中字段需要全部小写
 // exampleConfigFile: 示例配置文件路径
-// config: 配置结构体
+// config: 必须是指向配置结构体的指针。yaml标签指定配置文件中字段名（更新字段时记得同步修改），default标签指定默认值
 func LoadYamlConfig(configFile, exampleConfigFile string, config any) error {
 	loader := NewYamlLoader(configFile, exampleConfigFile)
 	return loader.Load(config)
@@ -43,7 +45,7 @@ func NewYamlLoader(configFile, exampleConfigFile string) *yamlLoader {
 }
 
 // Load 加载配置文件到指定的配置结构体
-// config 必须是指向配置结构体的指针
+// config: 必须是指向配置结构体的指针。yaml标签指定配置文件中字段名（更新字段时记得同步修改），default标签指定默认值
 func (l *yamlLoader) Load(config any) error {
 	if config == nil {
 		return fmt.Errorf("config is nil")
@@ -226,7 +228,7 @@ func (l *yamlLoader) processBasicField(field reflect.Value, fieldType reflect.St
 		return nil
 	}
 
-	defaultTag := fieldType.Tag.Get("default")
+	defaultTag := fieldType.Tag.Get(defaultTag)
 	if defaultTag == "" {
 		// 若没有default tag的字段，保持原本值
 		return nil
