@@ -1,4 +1,4 @@
-module yamlconfig
+module github.com/13inary/yamlconfig
 
 go 1.23.0
 
