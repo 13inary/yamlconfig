@@ -20,7 +20,17 @@ type yamlLoader struct {
 	exampleConfigFile string
 }
 
+// LoadYamlConfig 加载YAML配置文件
+// configFile: 配置文件路径，若不设置tag，那么配置文件中字段需要全部小写
+// exampleConfigFile: 示例配置文件路径
+// config: 配置结构体
+func LoadYamlConfig(configFile, exampleConfigFile string, config any) error {
+	loader := NewYamlLoader(configFile, exampleConfigFile)
+	return loader.Load(config)
+}
+
 // NewYamlLoader 创建新的配置加载器
+// configFile: 配置文件路径，若不设置tag，那么配置文件中字段需要全部小写
 // exampleConfigFile: 如果非空，则会在示例配置文件不存在时自动创建
 func NewYamlLoader(configFile, exampleConfigFile string) *yamlLoader {
 	if configFile == "" {
