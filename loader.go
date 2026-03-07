@@ -31,7 +31,7 @@ func LoadYamlConfig(configFile, exampleConfigFile string, config any) error {
 
 // NewYamlLoader 创建新的配置加载器
 // configFile: 配置文件路径，若不设置tag，那么配置文件中字段需要全部小写
-// exampleConfigFile: 如果非空，则会在示例配置文件不存在时自动创建
+// exampleConfigFile: 示例配置文件路径
 func NewYamlLoader(configFile, exampleConfigFile string) *yamlLoader {
 	if configFile == "" {
 		configFile = defaultConfigFile
@@ -58,7 +58,7 @@ func (l *yamlLoader) Load(config any) error {
 
 	// 如果指定了示例配置文件路径，且示例配置文件不存在，则创建示例配置文件
 	if l.exampleConfigFile != "" {
-		if err := l.ensureExampleConfig(configType); err != nil {
+		if err := l.createExampleConfig(configType, l.exampleConfigFile); err != nil {
 			return err
 		}
 	}
@@ -88,18 +88,18 @@ func (l *yamlLoader) fileExists(filePath string) (bool, error) {
 	return true, nil
 }
 
-// ensureExampleConfig 确保示例配置文件存在
-func (l *yamlLoader) ensureExampleConfig(configType reflect.Type) error {
-	exists, err := l.fileExists(l.exampleConfigFile)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		// 示例文件不存在，创建示例配置文件
-		return l.createExampleConfig(configType, l.exampleConfigFile)
-	}
-	return nil
-}
+// // ensureExampleConfig 确保示例配置文件存在
+// func (l *yamlLoader) ensureExampleConfig(configType reflect.Type) error {
+// 	exists, err := l.fileExists(l.exampleConfigFile)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if !exists {
+// 		// 示例文件不存在，创建示例配置文件
+// 		return l.createExampleConfig(configType, l.exampleConfigFile)
+// 	}
+// 	return nil
+// }
 
 // loadConfigFile 读取并解析配置文件（如果存在）
 func (l *yamlLoader) loadConfigFile(config any) error {
@@ -126,7 +126,7 @@ func (l *yamlLoader) loadConfigFile(config any) error {
 	return nil
 }
 
-// createExampleConfig 创建示例默认配置文件
+// createExampleConfig 创建示例默认配置文件。若已经存在旧的，则直接覆盖旧的
 func (l *yamlLoader) createExampleConfig(configType reflect.Type, filePath string) error {
 	// 创建配置实例
 	config := reflect.New(configType).Interface()
